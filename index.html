@@ -8,53 +8,103 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  background: #0f0c29;
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 16px;
-  overflow: hidden;
+  padding: 12px 8px;
+  overflow-x: hidden;
   -webkit-user-select: none;
   user-select: none;
+  color: #fff;
 }
 
+/* ---- Header ---- */
 .header {
   text-align: center;
-  margin-bottom: 16px;
-  color: #fff;
-}
-.header h1 {
-  font-size: 28px;
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  letter-spacing: -0.5px;
-}
-.header .subtitle {
-  font-size: 14px;
-  opacity: 0.8;
-  margin-top: 4px;
-}
-
-.stats {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 16px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-}
-.stats span { text-shadow: 0 1px 4px rgba(0,0,0,0.2); }
-
-.board {
-  display: grid;
-  gap: 10px;
-  perspective: 1000px;
-  max-width: 500px;
+  margin-bottom: 8px;
   width: 100%;
 }
+.header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #f7971e, #ffd200);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
 
+/* ---- Stats ---- */
+.stats {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* ---- Progress bar ---- */
+.peek-bar {
+  width: 100%;
+  max-width: 600px;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.peek-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f7971e, #ffd200);
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+.peek-bar.hidden { display: none; }
+
+/* ---- Countdown badge (floats over board, not blocking) ---- */
+.countdown-badge {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.25);
+  pointer-events: none;
+  z-index: 50;
+  text-shadow: 0 0 40px rgba(255,255,255,0.15);
+  transition: opacity 0.3s;
+}
+.countdown-badge.hidden { opacity: 0; }
+.countdown-label {
+  position: fixed;
+  top: calc(50% - 90px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  pointer-events: none;
+  z-index: 50;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.countdown-label.hidden { opacity: 0; }
+
+/* ---- Board ---- */
+.board {
+  display: grid;
+  gap: 8px;
+  perspective: 1000px;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ---- Cards ---- */
 .card {
   aspect-ratio: 1;
   cursor: pointer;
@@ -65,83 +115,82 @@ body {
 }
 .card.flipped { transform: rotateY(180deg); }
 .card.matched { transform: rotateY(180deg); }
-.card.matched .card-front { box-shadow: 0 0 20px rgba(255,215,0,0.6); border-color: gold; }
+.card.matched .card-front {
+  box-shadow: 0 0 24px rgba(255,215,0,0.5), inset 0 0 0 3px gold;
+}
 .card.peek { transform: rotateY(180deg); }
-.card.peek .card-front img { filter: blur(12px); transition: filter 0.3s; }
-.card.peek.peek-clear .card-front img { filter: none; }
 
 .card-face {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border-radius: 14px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid rgba(255,255,255,0.3);
+  overflow: hidden;
 }
 
 .card-back {
-  background: linear-gradient(145deg, #43e97b 0%, #38f9d7 100%);
-  font-size: 32px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.15);
 }
 .card-back::after {
-  content: '?';
-  font-size: 36px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.5);
+  content: '✦';
+  font-size: 28px;
+  color: rgba(255,255,255,0.25);
 }
 
 .card-front {
-  background: rgba(255,255,255,0.95);
+  background: #1a1a2e;
   transform: rotateY(180deg);
-  font-size: 48px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 .card-front img {
-  width: 85%;
-  height: 85%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 14px;
+  transition: filter 0.4s ease;
 }
 
+/* Blur states */
+.card.peek .card-front img { filter: blur(18px) brightness(0.7); }
+.card.peek.peek-clear .card-front img { filter: none; }
+
+/* ---- Start screen ---- */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(15,12,41,0.92);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  backdrop-filter: blur(8px);
-  color: #fff;
+  backdrop-filter: blur(12px);
   text-align: center;
   padding: 24px;
 }
 .overlay.hidden { display: none; }
-.overlay h2 { font-size: 48px; margin-bottom: 8px; }
-.overlay p { font-size: 18px; opacity: 0.9; margin-bottom: 24px; }
-.overlay .timer-big {
-  font-size: 96px;
-  font-weight: 800;
-  text-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  line-height: 1;
-}
+.overlay h2 { font-size: 56px; margin-bottom: 12px; }
+.overlay p { font-size: 18px; opacity: 0.8; margin-bottom: 24px; }
 
 .btn {
-  padding: 14px 32px;
+  padding: 16px 40px;
   border: none;
-  border-radius: 14px;
-  font-size: 18px;
-  font-weight: 700;
+  border-radius: 16px;
+  font-size: 20px;
+  font-weight: 800;
   cursor: pointer;
-  background: #fff;
-  color: #764ba2;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+  color: #1a1a2e;
+  box-shadow: 0 6px 24px rgba(247,151,30,0.4);
   transition: transform 0.15s;
   margin: 6px;
+  letter-spacing: 0.5px;
 }
 .btn:active { transform: scale(0.95); }
 
@@ -150,46 +199,30 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: 16px;
+  margin-top: 20px;
 }
 .diff-btn {
-  padding: 12px 20px;
-  border: 3px solid rgba(255,255,255,0.4);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.15);
+  padding: 14px 22px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.08);
   color: #fff;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
 }
 .diff-btn:hover, .diff-btn.active {
-  background: rgba(255,255,255,0.3);
-  border-color: #fff;
+  background: rgba(247,151,30,0.2);
+  border-color: #f7971e;
+  color: #ffd200;
 }
 
-.peek-bar {
-  width: 100%;
-  max-width: 500px;
-  height: 8px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 4px;
-  margin-bottom: 12px;
-  overflow: hidden;
-}
-.peek-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #43e97b, #38f9d7);
-  border-radius: 4px;
-  transition: width 0.1s linear;
-}
-
+/* ---- Confetti ---- */
 .confetti {
   position: fixed;
   top: -10px;
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+  border-radius: 3px;
   animation: fall linear forwards;
   z-index: 200;
   pointer-events: none;
@@ -198,11 +231,13 @@ body {
   to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
 }
 
-@media (max-width: 500px) {
+/* ---- Mobile: 3 columns, fill screen ---- */
+@media (max-width: 600px) {
+  body { padding: 8px 6px; }
   .header h1 { font-size: 22px; }
-  .card-front { font-size: 36px; }
-  .card-back::after { font-size: 28px; }
   .board { gap: 6px; }
+  .card-back::after { font-size: 22px; }
+  .countdown-badge { font-size: 100px; }
 }
 </style>
 </head>
@@ -211,62 +246,52 @@ body {
 <!-- Start Screen -->
 <div class="overlay" id="startScreen">
   <h2>🧠</h2>
-  <p>Hans's Memory Game</p>
+  <p>Memory Game</p>
   <div class="difficulty">
-    <button class="diff-btn active" data-size="4">Easy (4×3)</button>
-    <button class="diff-btn" data-size="6">Medium (4×4)</button>
-    <button class="diff-btn" data-size="8">Hard (4×5)</button>
+    <button class="diff-btn active" data-size="4">Easy<br><small>3 × 4</small></button>
+    <button class="diff-btn" data-size="6">Medium<br><small>4 × 4</small></button>
+    <button class="diff-btn" data-size="8">Hard<br><small>4 × 5</small></button>
   </div>
-  <div style="margin-top: 20px">
-    <button class="btn" id="startBtn">▶ Start Game</button>
+  <div style="margin-top: 24px">
+    <button class="btn" id="startBtn">▶ Play</button>
   </div>
-</div>
-
-<!-- Peek Countdown -->
-<div class="overlay hidden" id="peekOverlay">
-  <p style="font-size: 22px; font-weight: 700;">Get ready to memorize!</p>
-  <div class="timer-big" id="peekTimer">5</div>
 </div>
 
 <!-- Win Screen -->
 <div class="overlay hidden" id="winScreen">
-  <h2>🎉</h2>
-  <p id="winText">Amazing job!</p>
-  <button class="btn" id="playAgainBtn">Play Again!</button>
+  <h2 id="winEmoji">🎉</h2>
+  <p id="winText">Amazing!</p>
+  <button class="btn" id="playAgainBtn">Play Again</button>
 </div>
 
 <div class="header" id="gameHeader" style="display:none">
-  <h1>🧠 Memory Game</h1>
-</div>
-
-<div class="peek-bar" id="peekBar" style="display:none">
-  <div class="peek-bar-fill" id="peekBarFill"></div>
+  <h1>Memory Game</h1>
 </div>
 
 <div class="stats" id="gameStats" style="display:none">
-  <span>⭐ Pairs: <span id="pairsFound">0</span>/<span id="pairsTotal">0</span></span>
-  <span>👆 Moves: <span id="moveCount">0</span></span>
+  <span>⭐ <span id="pairsFound">0</span>/<span id="pairsTotal">0</span></span>
+  <span>👆 <span id="moveCount">0</span></span>
 </div>
+
+<div class="peek-bar hidden" id="peekBar"><div class="peek-bar-fill" id="peekBarFill"></div></div>
+
+<div class="countdown-badge hidden" id="countdownBadge"></div>
+<div class="countdown-label hidden" id="countdownLabel">MEMORIZE</div>
 
 <div class="board" id="board"></div>
 
 <script>
-const EMOJIS = [
-  '🐶','🐱','🐼','🦁','🐸','🐵','🐔','🐙',
-  '🦄','🐝','🐢','🐳','🦋','🐘','🐧','🦊',
-  '🐬','🐞','🦀','🐻'
+const CUSTOM_IMAGES = [
+  'photos/1.jpg','photos/2.jpg','photos/3.jpg','photos/4.jpg','photos/5.jpg',
+  'photos/6.jpg','photos/7.jpg','photos/8.jpg','photos/9.jpg','photos/10.jpg',
 ];
 
-// Family photos for Hans!
-const CUSTOM_IMAGES = [
-  'photos/1.jpg', 'photos/2.jpg', 'photos/3.jpg', 'photos/4.jpg', 'photos/5.jpg',
-  'photos/6.jpg', 'photos/7.jpg', 'photos/8.jpg', 'photos/9.jpg', 'photos/10.jpg',
-];
+const EMOJIS = ['🐶','🐱','🐼','🦁','🐸','🐵','🐔','🐙','🦄','🐝','🐢','🐳','🦋','🐘','🐧','🦊','🐬','🐞','🦀','🐻'];
 
 const GRID_CONFIGS = {
-  4: { cols: 4, rows: 3, pairs: 6, peekTime: 8 },
-  6: { cols: 4, rows: 4, pairs: 8, peekTime: 10 },
-  8: { cols: 4, rows: 5, pairs: 10, peekTime: 12 },
+  4:  { cols: 3, rows: 4, pairs: 6,  peekTime: 8  },
+  6:  { cols: 4, rows: 4, pairs: 8,  peekTime: 10 },
+  8:  { cols: 4, rows: 5, pairs: 10, peekTime: 12 },
 };
 
 let config = GRID_CONFIGS[4];
@@ -277,7 +302,6 @@ let moves = 0;
 let locked = false;
 let peekInterval = null;
 
-// Difficulty buttons
 document.querySelectorAll('.diff-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
@@ -296,25 +320,15 @@ function startGame() {
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('gameHeader').style.display = '';
   document.getElementById('gameStats').style.display = '';
-  document.getElementById('peekBar').style.display = '';
 
-  matchedPairs = 0;
-  moves = 0;
-  flippedCards = [];
-  locked = true;
-
+  matchedPairs = 0; moves = 0; flippedCards = []; locked = true;
   document.getElementById('pairsFound').textContent = '0';
   document.getElementById('pairsTotal').textContent = config.pairs;
   document.getElementById('moveCount').textContent = '0';
 
-  // Build card set
   const useImages = CUSTOM_IMAGES.length >= config.pairs;
-  const pool = useImages
-    ? CUSTOM_IMAGES.slice(0, config.pairs)
-    : EMOJIS.slice(0, config.pairs);
-
-  let deck = [...pool, ...pool];
-  deck = shuffle(deck);
+  const pool = useImages ? shuffle(CUSTOM_IMAGES).slice(0, config.pairs) : EMOJIS.slice(0, config.pairs);
+  let deck = shuffle([...pool, ...pool]);
 
   const board = document.getElementById('board');
   board.innerHTML = '';
@@ -323,7 +337,7 @@ function startGame() {
 
   deck.forEach((item, i) => {
     const card = document.createElement('div');
-    card.className = 'card peek';
+    card.className = 'card peek'; // start peeked + blurred
     card.dataset.index = i;
     card.dataset.value = item;
 
@@ -334,12 +348,11 @@ function startGame() {
     front.className = 'card-face card-front';
     if (useImages) {
       const img = document.createElement('img');
-      img.src = item;
-      img.alt = '';
-      img.loading = 'eager';
+      img.src = item; img.alt = ''; img.loading = 'eager';
       front.appendChild(img);
     } else {
       front.textContent = item;
+      front.style.fontSize = '48px';
     }
 
     card.appendChild(back);
@@ -349,56 +362,55 @@ function startGame() {
     cards.push(card);
   });
 
-  // Peek phase — start blurred, then reveal
   startPeek();
 }
 
 function startPeek() {
-  const peekOverlay = document.getElementById('peekOverlay');
+  const peekBar = document.getElementById('peekBar');
   const peekBarFill = document.getElementById('peekBarFill');
-  const peekTimerEl = document.getElementById('peekTimer');
+  const badge = document.getElementById('countdownBadge');
+  const label = document.getElementById('countdownLabel');
 
-  // Phase 1: Show blurred for 3 seconds with "Get ready!" overlay
-  peekOverlay.classList.remove('hidden');
+  peekBar.classList.remove('hidden');
   peekBarFill.style.width = '100%';
-  peekTimerEl.textContent = '👀';
 
+  // Phase 1: blurred cards visible, countdown from 3
   const blurTime = 3000;
   const revealTime = config.peekTime * 1000;
-  const totalMs = blurTime + revealTime;
   const startTime = Date.now();
+
+  badge.classList.remove('hidden');
+  label.classList.remove('hidden');
+  label.textContent = 'GET READY';
 
   peekInterval = setInterval(() => {
     const elapsed = Date.now() - startTime;
 
     if (elapsed < blurTime) {
-      // Phase 1: blurred, countdown to reveal
+      // Blur phase
       const secsLeft = Math.ceil((blurTime - elapsed) / 1000);
-      peekTimerEl.textContent = secsLeft;
+      badge.textContent = secsLeft;
       peekBarFill.style.width = '100%';
-    } else if (elapsed === blurTime || (elapsed > blurTime && !cards[0].classList.contains('peek-clear'))) {
-      // Phase 2: unblur! Hide overlay, start memorize countdown
-      cards.forEach(c => c.classList.add('peek-clear'));
-      peekOverlay.classList.add('hidden');
-    }
-
-    if (elapsed >= blurTime) {
+    } else {
+      // Reveal phase
+      if (!cards[0].classList.contains('peek-clear')) {
+        cards.forEach(c => c.classList.add('peek-clear'));
+        label.textContent = 'MEMORIZE';
+      }
       const revealElapsed = elapsed - blurTime;
       const pct = Math.max(0, 1 - revealElapsed / revealTime) * 100;
       peekBarFill.style.width = pct + '%';
       const secsLeft = Math.ceil((revealTime - revealElapsed) / 1000);
-      peekTimerEl.textContent = Math.max(0, secsLeft);
-    }
+      badge.textContent = secsLeft > 0 ? secsLeft : '';
 
-    if (elapsed >= totalMs) {
-      clearInterval(peekInterval);
-      peekOverlay.classList.add('hidden');
-      // Flip all cards back
-      cards.forEach(c => {
-        c.classList.remove('peek');
-        c.classList.remove('peek-clear');
-      });
-      locked = false;
+      if (revealElapsed >= revealTime) {
+        clearInterval(peekInterval);
+        badge.classList.add('hidden');
+        label.classList.add('hidden');
+        peekBar.classList.add('hidden');
+        cards.forEach(c => { c.classList.remove('peek','peek-clear'); });
+        locked = false;
+      }
     }
   }, 50);
 }
@@ -415,62 +427,42 @@ function flipCard(card) {
     moves++;
     document.getElementById('moveCount').textContent = moves;
     locked = true;
-
     const [a, b] = flippedCards;
     if (a.dataset.value === b.dataset.value) {
-      // Match!
-      a.classList.add('matched');
-      b.classList.add('matched');
+      a.classList.add('matched'); b.classList.add('matched');
       matchedPairs++;
       document.getElementById('pairsFound').textContent = matchedPairs;
-      flippedCards = [];
-      locked = false;
-
-      if (matchedPairs === config.pairs) {
-        setTimeout(winGame, 600);
-      }
+      flippedCards = []; locked = false;
+      if (matchedPairs === config.pairs) setTimeout(winGame, 500);
     } else {
-      // No match — flip back
-      setTimeout(() => {
-        a.classList.remove('flipped');
-        b.classList.remove('flipped');
-        flippedCards = [];
-        locked = false;
-      }, 900);
+      setTimeout(() => { a.classList.remove('flipped'); b.classList.remove('flipped'); flippedCards = []; locked = false; }, 900);
     }
   }
 }
 
 function winGame() {
-  const stars = moves <= config.pairs + 2 ? '⭐⭐⭐' : moves <= config.pairs * 2 ? '⭐⭐' : '⭐';
-  document.getElementById('winText').textContent =
-    `You found all ${config.pairs} pairs in ${moves} moves! ${stars}`;
+  const stars = moves <= config.pairs + 2 ? '🌟🌟🌟' : moves <= config.pairs * 2 ? '🌟🌟' : '🌟';
+  document.getElementById('winEmoji').textContent = '🎉';
+  document.getElementById('winText').textContent = `${config.pairs} pairs in ${moves} moves! ${stars}`;
   document.getElementById('winScreen').classList.remove('hidden');
   launchConfetti();
 }
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
 
 function launchConfetti() {
-  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bff','#ffaa5b'];
-  for (let i = 0; i < 60; i++) {
+  const colors = ['#f7971e','#ffd200','#667eea','#764ba2','#ff6b6b','#6bcb77'];
+  for (let i = 0; i < 80; i++) {
     const el = document.createElement('div');
     el.className = 'confetti';
-    el.style.left = Math.random() * 100 + 'vw';
-    el.style.background = colors[Math.floor(Math.random() * colors.length)];
-    el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-    el.style.animationDelay = Math.random() * 0.5 + 's';
-    el.style.width = (8 + Math.random() * 8) + 'px';
-    el.style.height = (8 + Math.random() * 8) + 'px';
+    el.style.left = Math.random()*100+'vw';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration = (1.5+Math.random()*2)+'s';
+    el.style.animationDelay = Math.random()*0.8+'s';
+    el.style.width = (8+Math.random()*10)+'px';
+    el.style.height = (8+Math.random()*10)+'px';
     document.body.appendChild(el);
-    setTimeout(() => el.remove(), 4000);
+    setTimeout(()=>el.remove(), 4500);
   }
 }
 </script>
