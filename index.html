@@ -67,6 +67,8 @@ body {
 .card.matched { transform: rotateY(180deg); }
 .card.matched .card-front { box-shadow: 0 0 20px rgba(255,215,0,0.6); border-color: gold; }
 .card.peek { transform: rotateY(180deg); }
+.card.peek .card-front img { filter: blur(12px); transition: filter 0.3s; }
+.card.peek.peek-clear .card-front img { filter: none; }
 
 .card-face {
   position: absolute;
@@ -222,7 +224,7 @@ body {
 
 <!-- Peek Countdown -->
 <div class="overlay hidden" id="peekOverlay">
-  <p style="font-size: 22px; font-weight: 700;">Memorize the cards!</p>
+  <p style="font-size: 22px; font-weight: 700;">Get ready to memorize!</p>
   <div class="timer-big" id="peekTimer">5</div>
 </div>
 
@@ -347,7 +349,7 @@ function startGame() {
     cards.push(card);
   });
 
-  // Peek phase
+  // Peek phase — start blurred, then reveal
   startPeek();
 }
 
@@ -356,28 +358,46 @@ function startPeek() {
   const peekBarFill = document.getElementById('peekBarFill');
   const peekTimerEl = document.getElementById('peekTimer');
 
+  // Phase 1: Show blurred for 3 seconds with "Get ready!" overlay
   peekOverlay.classList.remove('hidden');
   peekBarFill.style.width = '100%';
+  peekTimerEl.textContent = '👀';
 
-  let remaining = config.peekTime;
-  peekTimerEl.textContent = remaining;
-
+  const blurTime = 3000;
+  const revealTime = config.peekTime * 1000;
+  const totalMs = blurTime + revealTime;
   const startTime = Date.now();
-  const totalMs = config.peekTime * 1000;
 
   peekInterval = setInterval(() => {
     const elapsed = Date.now() - startTime;
-    const pct = Math.max(0, 1 - elapsed / totalMs) * 100;
-    peekBarFill.style.width = pct + '%';
 
-    const secsLeft = Math.ceil((totalMs - elapsed) / 1000);
-    peekTimerEl.textContent = Math.max(0, secsLeft);
+    if (elapsed < blurTime) {
+      // Phase 1: blurred, countdown to reveal
+      const secsLeft = Math.ceil((blurTime - elapsed) / 1000);
+      peekTimerEl.textContent = secsLeft;
+      peekBarFill.style.width = '100%';
+    } else if (elapsed === blurTime || (elapsed > blurTime && !cards[0].classList.contains('peek-clear'))) {
+      // Phase 2: unblur! Hide overlay, start memorize countdown
+      cards.forEach(c => c.classList.add('peek-clear'));
+      peekOverlay.classList.add('hidden');
+    }
+
+    if (elapsed >= blurTime) {
+      const revealElapsed = elapsed - blurTime;
+      const pct = Math.max(0, 1 - revealElapsed / revealTime) * 100;
+      peekBarFill.style.width = pct + '%';
+      const secsLeft = Math.ceil((revealTime - revealElapsed) / 1000);
+      peekTimerEl.textContent = Math.max(0, secsLeft);
+    }
 
     if (elapsed >= totalMs) {
       clearInterval(peekInterval);
       peekOverlay.classList.add('hidden');
       // Flip all cards back
-      cards.forEach(c => c.classList.remove('peek'));
+      cards.forEach(c => {
+        c.classList.remove('peek');
+        c.classList.remove('peek-clear');
+      });
       locked = false;
     }
   }, 50);
